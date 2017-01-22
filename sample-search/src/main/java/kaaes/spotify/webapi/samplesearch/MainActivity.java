@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.SearchView;
 
 import java.util.List;
 
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
 
 public class MainActivity extends AppCompatActivity implements Search.View {
@@ -48,6 +51,11 @@ public class MainActivity extends AppCompatActivity implements Search.View {
 
         Intent intent = getIntent();
         String token = intent.getStringExtra(EXTRA_TOKEN);
+
+        SpotifyApi api = new SpotifyApi();
+        api.setAccessToken(token);
+        SpotifyService spotify = api.getService();
+        Log.i("my name: ", spotify.getMe().toString());
 
         mActionListener = new SearchPresenter(this, this);
         mActionListener.init(token);

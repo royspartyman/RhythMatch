@@ -5,6 +5,7 @@ import com.squareup.picasso.Picasso;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -13,95 +14,232 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import junit.framework.Test;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import android.os.Handler;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Recommendations;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.UserPrivate;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class TestActivity extends AppCompatActivity {
+
+    static final String EXTRA_TOKEN = "EXTRA_TOKEN";
 
     private static final String TAG = "MainActivity";
     private SwipeDeck cardStack;
     private Context context = this;
     private SwipeDeckAdapter adapter;
     private ArrayList<String> testData;
-    private CheckBox dragCheckbox;
+    private String userId = "";
+    private List<Track> trackList = null;
+    private Handler handler = new Handler();
+    private PreviewPlayer previewPlayer = new PreviewPlayer();
+    private String currentTrack = "";
+    private SpotifyService spotify;
+
+    private enum sampleState{PLAYING, PAUSED, DONE}
+    private sampleState currentState;
+
+    @BindView(R.id.progressBar1)
+    ProgressBar progressBar;
+
+    @BindView(R.id.sample_state)
+    ImageView samplePlayerState;
+
+    @OnClick(R.id.sample_state)
+    public void onSampleStateChangeClick(){
+        String uri = "";
+        int imageResource = 0;
+
+        switch (currentState){
+            case PLAYING:
+                currentState = sampleState.PAUSED;
+                previewPlayer.pause();
+                uri = "@drawable/ic_play_sample";
+                imageResource = getResources().getIdentifier(uri, null, getPackageName());
+                samplePlayerState.setImageResource(imageResource);
+                handler.removeCallbacks(runnable);
+                break;
+            case PAUSED:
+                currentState = sampleState.PLAYING;
+                previewPlayer.resume();
+                uri = "@drawable/ic_pause_sample";
+                imageResource = getResources().getIdentifier(uri, null, getPackageName());
+                samplePlayerState.setImageResource(imageResource);
+                handler.postDelayed(runnable, 1000);
+                break;
+            case DONE:
+                previewPlayer.play(currentTrack);
+                uri = "@drawable/ic_pause_sample";
+                imageResource = getResources().getIdentifier(uri, null, getPackageName());
+                samplePlayerState.setImageResource(imageResource);
+                progressBar.setProgress(0);
+                currentState = sampleState.PLAYING;
+                handler.postDelayed(runnable, 1000);
+        }
+    }
 
     public static Intent createIntent(Context context) {
         return new Intent(context, TestActivity.class);
     }
+
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+      /* do what you need to do */
+            progressBar.setProgress(progressBar.getProgress()+1);
+      /* and here comes the "trick" */
+            if(progressBar.getProgress() >= 30){
+                currentState = sampleState.DONE;
+                String uri = "@drawable/ic_play_sample";
+                int imageResource = getResources().getIdentifier(uri, null, getPackageName());
+                samplePlayerState.setImageResource(imageResource);
+                handler.removeCallbacks(runnable);
+            }else{
+                handler.postDelayed(this, 1000);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         cardStack = (SwipeDeck) findViewById(R.id.swipe_deck);
-        dragCheckbox = (CheckBox) findViewById(R.id.checkbox_drag);
+        ButterKnife.bind(this);
 
-        testData = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            testData.add(String.valueOf(i));
-        }
+        Intent intent = getIntent();
+        final String token = intent.getStringExtra(EXTRA_TOKEN);
 
-        adapter = new SwipeDeckAdapter(testData, this);
-        if(cardStack != null){
-            cardStack.setAdapter(adapter);
-        }
-        cardStack.setCallback(new SwipeDeck.SwipeDeckCallback() {
+        SpotifyApi api = new SpotifyApi();
+        api.setAccessToken(token);
+        spotify = api.getService();
+
+        final Map<String, Object> options = new HashMap<>();
+        options.put("seed_genres", "house");
+        options.put("limit", "20");
+
+        spotify.getRecommendations(options, new Callback<Recommendations>() {
             @Override
-            public void cardSwipedLeft(long stableId) {
-                Log.i("MainActivity", "card was swiped left, position in adapter: " + stableId);
-            }
+            public void success(Recommendations recommendations, Response response) {
+                trackList = recommendations.tracks;
+                adapter = new SwipeDeckAdapter(trackList, getApplicationContext());
+                adapter.notifyDataSetChanged();
 
-            @Override
-            public void cardSwipedRight(long stableId) {
-                Log.i("MainActivity", "card was swiped right, position in adapter: " + stableId);
+                for(Track track : trackList){
+                    try{
+                        previewPlayer.play(track.preview_url);
+                        currentState = sampleState.PLAYING;
+                        currentTrack = trackList.get(0).preview_url;
+                        handler.postDelayed(runnable, 1000);
+                        break;
+                    }catch (Exception ex){
+                        trackList.remove(0);
+                        adapter.data = trackList;
+                        adapter.notifyDataSetChanged();
+                    }
+                }
 
-            }
 
-        });
+                if(cardStack != null){
+                    cardStack.setAdapter(adapter);
+                }
+                cardStack.setCallback(new SwipeDeck.SwipeDeckCallback() {
+                    @Override
+                    public void cardSwipedLeft(long stableId) {
+                        trackList.remove(0);
+                        adapter.data.remove((int)stableId);
+                        adapter.notifyDataSetChanged();
+                        try{
+                            if(trackList.size() <= 5) {
+                                spotify.getRecommendations(options, new Callback<Recommendations>() {
+                                    @Override
+                                    public void success(Recommendations recommendations, Response response) {
+                                        trackList.addAll(recommendations.tracks);
+                                        adapter.data = trackList;
+                                        adapter.notifyDataSetChanged();
+                                    }
 
-        cardStack.setLeftImage(R.id.left_image);
-        cardStack.setRightImage(R.id.right_image);
+                                    @Override
+                                    public void failure(RetrofitError error) {
 
-        Button btn = (Button) findViewById(R.id.button_left);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cardStack.swipeTopCardLeft(500);
+                                    }
+                                });
+                            }
+                            previewPlayer.play(adapter.data.get((int)stableId+1).preview_url);
+                        }catch (Exception ex){
+                        }
+                    }
 
-            }
-        });
-        Button btn2 = (Button) findViewById(R.id.button_right);
-        btn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cardStack.swipeTopCardRight(180);
-            }
-        });
+                    @Override
+                    public void cardSwipedRight(long stableId) {
+                        Log.i("MainActivity", "card was swiped right, position in adapter: " + stableId);
 
-        Button btn3 = (Button) findViewById(R.id.button_center);
-        btn3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                    }
+
+                });
+
+                cardStack.setLeftImage(R.id.left_image);
+                cardStack.setRightImage(R.id.right_image);
+
+                ImageView btn = (ImageView) findViewById(R.id.button_left);
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cardStack.swipeTopCardLeft(500);
+
+                    }
+                });
+                ImageView btn2 = (ImageView) findViewById(R.id.button_right);
+                btn2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cardStack.swipeTopCardRight(180);
+                    }
+                });
+
+                Button btn3 = (Button) findViewById(R.id.button_center);
+                btn3.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 //                testData.add("a sample string.");
 //                adapter.notifyDataSetChanged();
-                cardStack.unSwipeCard();
+                        cardStack.unSwipeCard();
+                    }
+                });
             }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("User success", error.toString());
+            }
+
         });
 
     }
 
     public class SwipeDeckAdapter extends BaseAdapter {
 
-        private List<String> data;
+        private List<Track> data;
         private Context context;
 
-        public SwipeDeckAdapter(List<String> data, Context context) {
+        public SwipeDeckAdapter(List<Track> data, Context context) {
             this.data = data;
             this.context = context;
         }
@@ -132,10 +270,10 @@ public class TestActivity extends AppCompatActivity {
             }
             //((TextView) v.findViewById(R.id.textView2)).setText(data.get(position));
             ImageView imageView = (ImageView) v.findViewById(R.id.offer_image);
-            Picasso.with(context).load(R.drawable.ic_facebook).fit().centerCrop().into(imageView);
+            Picasso.with(context).load(R.drawable.ic_hate_music).fit().centerCrop().into(imageView);
             TextView textView = (TextView) v.findViewById(R.id.sample_text);
-            String item = (String)getItem(position);
-            textView.setText(item);
+            Track track = data.get(position);
+            textView.setText(track.name);
 
             v.setOnClickListener(new View.OnClickListener() {
                 @Override

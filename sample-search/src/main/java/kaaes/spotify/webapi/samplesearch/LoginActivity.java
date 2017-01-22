@@ -84,6 +84,7 @@ public class LoginActivity extends Activity {
 
     private void startMainActivity(String token) {
         Intent intent = TestActivity.createIntent(this);
+        intent.putExtra(TestActivity.EXTRA_TOKEN, token);
         startActivity(intent);
         finish();
     }
