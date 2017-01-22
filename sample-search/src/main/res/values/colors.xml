@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#26511b</color>
+    <color name="colorAccent">#61d454</color>
+
+    <!-- Social Media Colors-->
+    <color name="spotify">#00d95f</color>
+
+    <!-- dots inactive colors -->
+    <color name="dot_dark_screen1">#000000</color>
+    <color name="dot_dark_screen2">#3b5998</color>
+    <color name="dot_dark_screen3">#8a3ab9</color>
+    <color name="dot_dark_screen4">#00d95f</color>
+    <color name="dot_dark_screen5">#4099ff</color>
+
+
+    <!-- dots active colors -->
+    <color name="dot_light_screen1">#5b5b5b</color>
+    <color name="dot_light_screen2">#879ed1</color>
+    <color name="dot_light_screen3">#c09dd4</color>
+    <color name="dot_light_screen4">#79f2ae</color>
+    <color name="dot_light_screen5">#8cbef7</color>
+
+
+    <array name="array_dot_active">
+        <item>@color/dot_light_screen1</item>
+        <item>@color/dot_light_screen2</item>
+        <item>@color/dot_light_screen3</item>
+        <item>@color/dot_light_screen4</item>
+        <item>@color/dot_light_screen5</item>
+    </array>
+
+    <array name="array_dot_inactive">
+        <item>@color/dot_dark_screen1</item>
+        <item>@color/dot_dark_screen2</item>
+        <item>@color/dot_dark_screen3</item>
+        <item>@color/dot_dark_screen4</item>
+        <item>@color/dot_dark_screen5</item>
+    </array>
+
+</resources>
