@@ -4,7 +4,7 @@ import android.support.annotation.Nullable;
 
 public interface Player {
 
-    void play(String url);
+    Boolean play(String url);
 
     void pause();
 

@@ -18,12 +18,12 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/profile"
+                android:id="@+id/back"
                 android:layout_toLeftOf="@+id/toolbar_title"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
-                android:src="@drawable/ic_user"
+                android:src="@drawable/ic_left_arrow"
                 />
 
         </LinearLayout>
@@ -52,6 +52,7 @@
             android:layout_height="match_parent">
 
             <ImageView
+                android:visibility="gone"
                 android:layout_toRightOf="@id/toolbar_title"
                 android:id="@+id/my_liked_songs"
                 android:layout_alignParentRight="true"

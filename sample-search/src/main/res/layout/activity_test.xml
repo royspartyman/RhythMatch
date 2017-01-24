@@ -6,9 +6,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <include layout="@layout/toolbar_main" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="100dp"
         android:layout_gravity="bottom|center"
         android:orientation="vertical">
 
@@ -63,9 +66,13 @@
             <Button
                 android:layout_marginStart="100dp"
                 android:layout_marginEnd="100dp"
+                android:background="@drawable/rounded_button"
+                android:backgroundTint="@color/colorAccent"
                 android:layout_alignParentBottom="true"
                 android:id="@+id/button_center"
+                android:textColor="@color/colorPrimary"
                 android:layout_width="match_parent"
+                android:textStyle="bold"
                 android:layout_height="wrap_content"
                 android:text="New Genre" />
 
@@ -78,20 +85,19 @@
                 android:gravity="right"
                 android:src="@drawable/ic_love_music" />
 
-
         </RelativeLayout>
 
     </LinearLayout>
 
     <com.daprlabs.aaron.swipedeck.SwipeDeck
+        android:layout_marginTop="50dp"
         android:id="@+id/swipe_deck"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        swipedeck:card_spacing="8dp"
-        android:padding="30dp"
-        swipedeck:max_visible="3"
-        swipedeck:render_above="false" />
+        swipedeck:card_spacing="12dp"
+        swipedeck:max_visible="2"
+        swipedeck:render_above="true" />
 
 
 </com.daprlabs.aaron.swipedeck.layouts.SwipeFrameLayout>

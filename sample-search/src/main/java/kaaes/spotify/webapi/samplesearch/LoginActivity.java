@@ -35,7 +35,7 @@ public class LoginActivity extends Activity {
     @OnClick(R.id.spotifyLogo)
     public void onSpotifyClick(){
         final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
-                .setScopes(new String[]{"playlist-read"})
+                .setScopes(new String[]{"user-read-private", "playlist-read", "playlist-read-private", "streaming", "playlist-modify-public", "playlist-modify-private"})
                 .build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);

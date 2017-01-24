@@ -25,22 +25,12 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:ellipsize="marquee"
-            android:gravity="bottom"
+            android:gravity="center|start"
+            android:text="dfsdfdsfdsfsdfsdfsdf"
             android:maxLines="1"
             android:scrollHorizontally="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
             />
-
-        <TextView
-            android:id="@+id/entity_subtitle"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:ellipsize="marquee"
-            android:gravity="top"
-            android:maxLines="1"
-            android:scrollHorizontally="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"/>
 
     </LinearLayout>
 

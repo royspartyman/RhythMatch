@@ -16,69 +16,74 @@
         android:background="@color/colorPrimary"
         android:orientation="vertical" android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <ImageView
-                tools:src="@drawable/ic_action_settings"
                 android:id="@+id/offer_image"
                 android:layout_width="match_parent"
-                android:scaleType="centerCrop"
+                android:scaleType="fitXY"
                 android:adjustViewBounds="true"
-                android:layout_height="200dp" />
+                android:layout_height="300dp" />
+
+            <LinearLayout
+                android:layout_alignTop="@id/offer_image"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:orientation="horizontal"
+                android:gravity="top">
+
+                <LinearLayout
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:layout_weight="1"
+                        android:id="@+id/left_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_love_music"
+                        android:layout_below="@id/offer_image"
+                        android:layout_centerHorizontal="true" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:layout_weight="1"
+                        android:id="@+id/right_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_hate_music"
+                        android:layout_below="@+id/offer_image"
+                        android:layout_centerHorizontal="true" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
 
         </RelativeLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <LinearLayout
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:layout_weight="1"
-                    android:id="@+id/left_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_hate_music"
-                    android:layout_below="@id/offer_image"
-                    android:layout_centerHorizontal="true" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:layout_weight="1"
-                    android:id="@+id/right_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_love_music"
-                    android:layout_below="@+id/offer_image"
-                    android:layout_centerHorizontal="true" />
-
-            </LinearLayout>
-
-        </LinearLayout>
 
         <TextView
             android:id="@+id/sample_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Sam Smith"
+            android:textStyle="bold"
+            android:textColor="@color/cardview_dark_background"
             android:gravity="center_horizontal"
-            android:textSize="20dp" />
+            android:textSize="16dp" />
 
     </LinearLayout>
 

@@ -35,7 +35,7 @@ public class PreviewPlayer implements Player, MediaPlayer.OnCompletionListener {
     }
 
     @Override
-    public void play(String url) {
+    public Boolean play(String url) {
         if (mMediaPlayer != null) {
             mMediaPlayer.release();
         }
@@ -43,8 +43,10 @@ public class PreviewPlayer implements Player, MediaPlayer.OnCompletionListener {
         try {
             createMediaPlayer(url);
             mCurrentTrack = url;
+            return true;
         } catch (IOException e) {
             Log.e(TAG, "Could not play: " + url, e);
+            return false;
         }
     }
 
